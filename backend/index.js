@@ -13,7 +13,7 @@ const server = http.createServer(app)
 const mongoClient = new MongoClient(process.env.MONGO_CONN_STRING)
 const io = new Server(server, {
   cors: {
-    origin: "http://127.0.0.1:5500",
+    origin: "http://localhost:5173",
   }
 })
 
@@ -55,7 +55,8 @@ io.on('connection', (socket) => {
     const users = db.collection('users')
     const clue = shuffleNum()
     let user
-    if((uuid?.length > 255) || (typeof(uuid) != 'string')) uuid = null
+    console.log(typeof uuid)
+    if(uuid == "null" || (uuid?.length > 255) || (typeof(uuid) != 'string')) uuid = null
     if(uuid) {
       user = await users.findOne({ _id: new ObjectId(uuid) })
     }
