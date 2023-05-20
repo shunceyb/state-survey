@@ -42,7 +42,7 @@ function shuffleNum() {
   return array;
 }
 
-console.log(shuffleNum())
+// console.log(shuffleNum())
 
 // console.log(shuffleArray(stateClues))
 
@@ -53,32 +53,27 @@ io.on('connection', (socket) => {
   socket.on('identify', async(uuid) => {
     const db = mongoClient.db('state_survey')
     const users = db.collection('users')
-    const clue = shuffleNum()
+    const responses = db.collection('responses')
+    let clue = shuffleNum()
     let user
     console.log(typeof uuid)
     if(uuid == "null" || (uuid?.length > 255) || (typeof(uuid) != 'string')) uuid = null
     if(uuid) {
       user = await users.findOne({ _id: new ObjectId(uuid) })
+      clue = user.clue
     }
     if(!user) {
       user = await users.insertOne({
         clue
       })
     }
+    const response = await responses.findOne({ user_id: uuid, sort: { _id: -1 }})
+    console.log(response)
+    if(!response) {
+      console.log(clue)
+    }
     socket.emit('id', user.insertedId?.toString() ?? user._id)
   })
 })
-
-// async function testUser() {
-//   const db = mongoClient.db('state_survey')
-//   const users = db.collection('users')
-//   const user = await users.findOne({ id: `test` })
-//   console.log(user)
-// }
-
-// console.log(xlsx.readFile(process.env.CLUES_LIST_PATH).Sheets.Sheet1.map(sheet => { clue: sheet, }))
-
-// testUser()
-
 
 server.listen(3000, '127.0.0.1')
