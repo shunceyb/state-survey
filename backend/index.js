@@ -53,6 +53,7 @@ io.on('connection', (socket) => {
   socket.on('identify', async(uuid) => {
     const db = mongoClient.db('state_survey')
     const users = db.collection('users')
+    const clues = db.collection('clues')
     const responses = db.collection('responses')
     let clue = shuffleNum()
     let user
@@ -68,11 +69,10 @@ io.on('connection', (socket) => {
       })
     }
     const response = await responses.findOne({ user_id: uuid, sort: { _id: -1 }})
-    console.log(response)
-    if(!response) {
-      console.log(clue)
-    }
+    clue = socket.clue = await clues.findOne({ _id: clue[0] })
+    console.log(socket.clue)
     socket.emit('id', user.insertedId?.toString() ?? user._id)
+    socket.emit('clue', clue.clue)
   })
 })
 
